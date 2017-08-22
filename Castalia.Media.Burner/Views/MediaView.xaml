@@ -1,0 +1,403 @@
+﻿<UserControl
+    x:Class="Castalia.Media.Burner.Views.MediaView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:conv="clr-namespace:Castalia.Media.Burner.Converters"
+    xmlns:vm="clr-namespace:Castalia.Media.Burner.ViewModels"
+    Width="700"
+    Height="500">
+
+
+
+    <UserControl.Resources>
+
+
+        <conv:DiscRecorderValueConverter x:Key="discRecorderValueConverter" />
+
+        <!--
+            This template applies an AllCustomersViewMediaView to an instance
+            of the MediaViewModel class shown in the main window.
+        -->
+
+        <vm:MediaViewModel x:Key="MediaViewModel" />
+        <!--<DataTemplate DataType="{x:Type vm:MediaViewModel}">
+            <vw:MediaView />
+        </DataTemplate>-->
+
+
+        <Style x:Key="MediaItemStyle" TargetType="{x:Type ListBoxItem}">
+
+            <!--
+                Bind the IsSelected property of a ListViewItem to the
+                IsSelected property of a MediaViewModel object.
+            -->
+            <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ItemsControl.AlternationIndex" Value="1" />
+                        <Condition Property="IsSelected" Value="False" />
+                        <Condition Property="IsMouseOver" Value="False" />
+                    </MultiTrigger.Conditions>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition MaxHeight="35" />
+        </Grid.RowDefinitions>
+
+
+        <TabControl
+            Grid.Row="0"
+            Background="{DynamicResource WindowBackgroundBrush}"
+            DataContext="{StaticResource MediaViewModel}">
+
+            <TabItem Header="Burn Files">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="6*" />
+                        <ColumnDefinition Width="4*" />
+                    </Grid.ColumnDefinitions>
+
+                    <DockPanel Grid.Row="0">
+                        <ComboBox
+                            x:Name="devicesComboBox"
+                            Width="196"
+                            Height="22"
+                            Margin="10"
+                            VerticalAlignment="Top"
+                            DockPanel.Dock="Left"
+                            IsSynchronizedWithCurrentItem="True"
+                            ItemsSource="{Binding DiscRecorders}">
+
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource discRecorderValueConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <StackPanel
+                            DockPanel.Dock="Right"
+                            Orientation="Horizontal"
+                            Visibility="Collapsed">
+                            <Label Margin="10,10,0,0" Content="Supported Media:" />
+
+                            <Label MaxWidth="300" Margin="5,2.5">
+                                <TextBlock
+                                    x:Name="SupportedMediaLabel"
+                                    Text="{Binding Path=SupportedMedia}"
+                                    TextWrapping="WrapWithOverflow" />
+                            </Label>
+
+                        </StackPanel>
+                    </DockPanel>
+
+                    <GroupBox 
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Header="Media to burn">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <ListBox
+                                x:Name="listBoxFiles"
+                                Grid.Row="0"
+                                Width="315"
+                                Height="124"
+                                Margin="5"
+                                ItemContainerStyle="{StaticResource MediaItemStyle}"
+                                ItemsSource="{Binding Path=MediaItems}"
+                                SelectionMode="Multiple">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Source="{Binding Path=FileIconImage}" />
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding Path=Path}" />
+
+                                        </Grid>
+
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <StackPanel
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Button
+                                    x:Name="buttonAddFiles"
+                                    Width="106"
+                                    Height="30"
+                                    Command="{Binding AddFilesCommand}"
+                                    Content="Add Files" />
+                                <Button
+                                    x:Name="buttonAddFolders"
+                                    Width="106"
+                                    Height="30"
+                                    Margin="10"
+                                    Command="{Binding Path=AddFoldersCommand}"
+                                    Content="Add Folders" />
+                                <Button
+                                    x:Name="buttonRemoveFiles"
+                                    Width="106"
+                                    Height="30"
+                                    Command="{Binding Path=RemoveMediaItemsCommand}"
+                                    Content="Remove" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                <Label
+                                    Width="120"
+                                    Height="25"
+                                    Margin="50,0,0,0"
+                                    Content="Volume label:" />
+                                <TextBox
+                                    x:Name="textBoxLabel"
+                                    Width="120"
+                                    Height="25"
+                                    Text="{Binding Path=VolumeLabel}" />
+
+                            </StackPanel>
+
+
+                            <StackPanel
+                                Grid.Row="3"
+                                HorizontalAlignment="Left"
+                                Orientation="Horizontal">
+                                <CheckBox
+                                    x:Name="checkBoxCloseMedia"
+                                    Margin="20,5,0,0"
+                                    Content="Close media"
+                                    IsChecked="{Binding Path=ShouldCloseMedia}" />
+                                <CheckBox
+                                    x:Name="checkBoxEject"
+                                    Margin="60,5,0,0"
+                                    Content="Eject when finished"
+                                    IsChecked="{Binding Path=ShouldEject}" />
+
+                            </StackPanel>
+
+                            <StackPanel
+                                Grid.Row="4"
+                                HorizontalAlignment="Left"
+                                Orientation="Horizontal">
+                                <Label Margin="30,5,0,0" Content="Verification:" />
+                                <ComboBox
+                                    x:Name="comboBoxVerification"
+                                    Width="150"
+                                    Height="25"
+                                    Margin="20,5,0,0"
+                                    ItemsSource="{Binding Path=VerificationTypes}">
+ 
+                                </ComboBox>
+
+                            </StackPanel>
+
+                            <Button
+                                Grid.Row="5"
+                                Width="70"
+                                Height="30"
+                                Margin="3"
+                                Command="{Binding Path=EjectCommand}"
+                                Content="Eject" />
+
+
+                        </Grid>
+
+                    </GroupBox>
+
+                    <Grid Grid.Row="1" Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition  />
+                            <RowDefinition  />
+
+                        </Grid.RowDefinitions>
+                        <GroupBox Grid.Row="0" Header="Selected media type">
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button
+                                    x:Name="ButtonDetectMedia"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Width="98"
+                                    Height="28"
+                                    Margin="10"
+                                    VerticalAlignment="Top"
+                                    Command="{Binding Path=DetectMediaCommand}"
+                                    Content="Detect Media" />
+                                <Label
+                                    x:Name="LabelMediaType"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="0,5,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Content="{Binding Path=MediaType}"
+                         />
+
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="15,30,0,0"
+                                    Content="0" />
+                                <Label
+                                    x:Name="LabelTotalSize"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="0,30,15,0"
+                                    HorizontalAlignment="Right"
+                                    Content="{Binding Path=TotalSize}" />
+                                <controls:MetroProgressBar
+                                    x:Name="CapacityProgressBar"
+                                    Grid.Row="2"
+                                    Grid.ColumnSpan="2"
+                                    Width="224"
+                                    Height="16"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{Binding Path=CapacityProgressBrush}"
+                                    Value="{Binding Path=CapacityProgressValue}" />
+                            </Grid>
+
+
+                        </GroupBox>
+                        <GroupBox Grid.Row="1" Header="Progress">
+                            <StackPanel HorizontalAlignment="Center">
+
+                                <Label
+                                    MaxWidth="120"
+                                    Margin="0,40,0,10"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom">
+                                    <TextBlock
+                                        x:Name="LabelStatusText"
+                                        Text="{Binding Path=BurnStatusMsg}"
+                                        TextWrapping="WrapWithOverflow" />
+                                </Label>
+
+                                <controls:MetroProgressBar
+                                    x:Name="StatusProgressBar"
+                                    Width="224"
+                                    Height="16" Margin="0,0,0,5" />
+                                <Button
+                                    x:Name="ButtonBurn"
+                                    Width="120"
+                                    Height="40"
+                                    Margin="0,0,0,0"
+                                    Command="{Binding Path=BurnCommand}"
+                                    Content="Burn"
+                              />
+
+                            </StackPanel>
+
+                        </GroupBox>
+                    </Grid>
+
+
+
+
+
+                </Grid>
+
+            </TabItem>
+
+            <TabItem x:Name="tabPageFormat" Header="Format Disk">
+
+                <Grid HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+
+                    </Grid.RowDefinitions>
+
+                    <StackPanel
+                        Grid.Row="0"
+                        Margin="0,40,0,0"
+                        HorizontalAlignment="Center">
+
+
+
+                        <CheckBox
+                            x:Name="checkBoxEjectFormat"
+                            Margin="5"
+                            Content="Eject when finished"
+                            IsChecked="{Binding Path=ShouldEjectFormat}" />
+                        <CheckBox
+                            x:Name="checkBoxQuickFormat"
+                            Margin="5"
+                            Content="Quick format"
+                            IsChecked="{Binding Path=ShouldFormatQuick}" />
+
+                    </StackPanel>
+
+                    <Button
+                        x:Name="buttonFormat"
+                        Grid.Row="1"
+                        Width="120"
+                        Height="30"
+                        Margin="20"
+                        VerticalAlignment="Top"
+                        Command="{Binding Path=FormatCommand}"
+                        Content="Format Disk" />
+
+                    <Label
+                        x:Name="labelFormatStatusText"
+                        Grid.Row="2"
+                        Margin="0,40,0,10"
+                        HorizontalAlignment="Center"
+                        Content="{Binding Path=FormatStatusMsg}" />
+                    <controls:MetroProgressBar
+                        x:Name="formatMetroProgressBar"
+                        Grid.Row="3"
+                        Width="360"
+                        Height="22"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Value="{Binding Path=FormatProgressValue}" />
+                </Grid>
+
+            </TabItem>
+        </TabControl>
+
+
+
+    </Grid>
+
+
+</UserControl>
+
